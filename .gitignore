@@ -1,0 +1,8 @@
+app/*
+data/*
+logs/*
+backup/*
+
+.env
+.DS_Store
+.vscode

@@ -1,0 +1,67 @@
+version: "3.1"
+services:
+  redis:
+    image: redis:alpine
+    container_name: tutorial-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - net
+
+  mariadb:
+    image: mariadb:latest
+    container_name: tutorial-mariadb
+    restart: always
+    working_dir: /app
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./app:/app
+      - mariadb-data:/var/lib/mysql
+    networks:
+      - net
+
+  php:
+    build: mydocker/php
+    container_name: tutorial-php
+    restart: always
+    working_dir: /app/
+    volumes:
+      - ./app:/app
+      - ./logs:/logs
+    ports: # "HOST:CONTAINER"
+      - "9000:9000" # PHP-FPM default port
+    networks:
+      - net
+
+  nginx:
+    image: nginx:alpine
+    container_name: tutorial-nginx
+    restart: always
+    working_dir: /app
+    volumes:
+      - ./app:/app
+      - ./mydocker/nginx/conf/nginx.conf:/etc/nginx/conf/nginx.conf:ro # Read only
+      - ./mydocker/nginx/conf.d:/etc/nginx/conf.d:ro # Read only
+    ports:
+      - "80:80"
+    networks:
+      - net
+    depends_on:
+      - php
+
+networks:
+  net:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:
