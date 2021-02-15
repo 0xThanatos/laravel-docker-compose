@@ -31,6 +31,7 @@ RUN docker-php-ext-install -j "$(nproc)" gd
 # Install extensions
 RUN docker-php-ext-install \
   opcache \
+  pdo_mysql \
   zip
 
 # Install extensions by PECL
